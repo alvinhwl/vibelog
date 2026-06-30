@@ -359,11 +359,12 @@
       aria-label="Local weather"
       aria-live="polite"
     >
+      <p class="text-[10px] sm:text-xs uppercase tracking-wider text-vibe-muted mb-3">Today's weather</p>
       <div id="weather-loading" class="flex items-center gap-3">
-        <div class="w-10 h-10 rounded-xl weather-shimmer flex-shrink-0"></div>
-        <div class="flex-1 space-y-2">
-          <div class="h-3 w-24 rounded-full weather-shimmer"></div>
-          <div class="h-2.5 w-36 rounded-full weather-shimmer"></div>
+        <span class="text-2xl animate-gentle-pulse flex-shrink-0" aria-hidden="true">🌤️</span>
+        <div class="flex-1">
+          <p class="text-sm text-vibe-text">Fetching weather near you…</p>
+          <p class="text-xs text-vibe-muted mt-0.5">Based on your IP location</p>
         </div>
       </div>
       <div id="weather-content" class="hidden">
@@ -385,7 +386,8 @@
         </div>
       </div>
       <div id="weather-error" class="hidden text-center py-1">
-        <p class="text-sm text-vibe-muted mb-2">Couldn't load weather right now</p>
+        <p class="text-sm text-vibe-muted mb-1">Couldn't load weather right now</p>
+        <p id="weather-error-detail" class="text-xs text-vibe-muted/70 mb-3"></p>
         <button
           type="button"
           id="weather-retry"
@@ -540,6 +542,8 @@
 
   <script>
     const STORAGE_KEY = 'vibelog_entries';
+    const WEATHER_CACHE_KEY = 'vibelog_weather_cache';
+    const WEATHER_CACHE_TTL = 30 * 60 * 1000;
 
     const MOODS = [
       { value: 1, emoji: '😢', label: 'Sad' },
@@ -908,10 +912,11 @@
       card.classList.add(`weather-${theme}`);
     }
 
-    function showWeatherState(state) {
+    function showWeatherState(state, errorDetail = '') {
       document.getElementById('weather-loading').classList.toggle('hidden', state !== 'loading');
       document.getElementById('weather-content').classList.toggle('hidden', state !== 'content');
       document.getElementById('weather-error').classList.toggle('hidden', state !== 'error');
+      document.getElementById('weather-error-detail').textContent = errorDetail;
       if (state === 'loading') {
         const card = document.getElementById('weather-card');
         WEATHER_THEMES.forEach(t => card.classList.remove(`weather-${t}`));
@@ -919,44 +924,71 @@
       }
     }
 
+    function fetchWithTimeout(url, ms = 10000) {
+      const controller = new AbortController();
+      const timer = setTimeout(() => controller.abort(), ms);
+      return fetch(url, { signal: controller.signal }).finally(() => clearTimeout(timer));
+    }
+
+    function cacheWeather(payload) {
+      try {
+        localStorage.setItem(WEATHER_CACHE_KEY, JSON.stringify({ ...payload, cachedAt: Date.now() }));
+      } catch { /* ignore quota errors */ }
+    }
+
+    function loadCachedWeather() {
+      try {
+        const raw = localStorage.getItem(WEATHER_CACHE_KEY);
+        if (!raw) return null;
+        const data = JSON.parse(raw);
+        if (!data.cachedAt || Date.now() - data.cachedAt > WEATHER_CACHE_TTL) return null;
+        return data;
+      } catch {
+        return null;
+      }
+    }
+
+    function themeFromDescription(text) {
+      const t = text.toLowerCase();
+      if (/thunder|storm|thundery/.test(t)) return 'storm';
+      if (/snow|sleet|ice|blizzard/.test(t)) return 'snow';
+      if (/rain|drizzle|shower/.test(t)) return 'rain';
+      if (/fog|mist|haze/.test(t)) return 'fog';
+      if (/overcast|cloudy/.test(t)) return 'cloudy';
+      if (/partly|mostly/.test(t)) return 'partly';
+      if (/clear|sunny|fair/.test(t)) return 'sunny';
+      return 'partly';
+    }
+
     async function fetchLocationFromIP() {
       const providers = [
         async () => {
-          const res = await fetch('https://get.geojs.io/v1/ip/geo.json');
+          const res = await fetchWithTimeout('https://get.geojs.io/v1/ip/geo.json');
           if (!res.ok) throw new Error('geojs failed');
           const data = await res.json();
+          const lat = parseFloat(data.latitude);
+          const lon = parseFloat(data.longitude);
+          if (!Number.isFinite(lat) || !Number.isFinite(lon)) throw new Error('geojs invalid coords');
           return {
-            lat: parseFloat(data.latitude),
-            lon: parseFloat(data.longitude),
-            city: data.city,
+            lat,
+            lon,
+            city: data.city || data.region || data.country,
             region: data.region,
             country: data.country,
           };
         },
         async () => {
-          const res = await fetch('https://ipwho.is/');
+          const res = await fetchWithTimeout('https://ipwho.is/');
           if (!res.ok) throw new Error('ipwho failed');
           const data = await res.json();
           if (!data.success) throw new Error('ipwho error');
+          if (!Number.isFinite(data.latitude) || !Number.isFinite(data.longitude)) throw new Error('ipwho invalid coords');
           return {
             lat: data.latitude,
             lon: data.longitude,
             city: data.city,
             region: data.region,
             country: data.country,
-          };
-        },
-        async () => {
-          const res = await fetch('https://ipapi.co/json/');
-          if (!res.ok) throw new Error('ipapi failed');
-          const data = await res.json();
-          if (data.error) throw new Error(data.reason || 'ipapi error');
-          return {
-            lat: data.latitude,
-            lon: data.longitude,
-            city: data.city,
-            region: data.region,
-            country: data.country_name,
           };
         },
       ];
@@ -972,7 +1004,7 @@
       throw lastError ?? new Error('Location lookup failed');
     }
 
-    async function fetchWeather(lat, lon) {
+    async function fetchWeatherFromOpenMeteo(lat, lon) {
       const params = new URLSearchParams({
         latitude: lat,
         longitude: lon,
@@ -980,11 +1012,34 @@
         temperature_unit: 'celsius',
         wind_speed_unit: 'kmh',
       });
-      const res = await fetch(`https://api.open-meteo.com/v1/forecast?${params}`);
-      if (!res.ok) throw new Error('Weather fetch failed');
+      const res = await fetchWithTimeout(`https://api.open-meteo.com/v1/forecast?${params}`);
+      if (!res.ok) throw new Error('Open-Meteo failed');
       const data = await res.json();
-      if (!data.current) throw new Error('No weather data');
+      if (!data.current) throw new Error('No Open-Meteo data');
       return data.current;
+    }
+
+    async function fetchWeatherFromWttr() {
+      const res = await fetchWithTimeout('https://wttr.in/?format=j1');
+      if (!res.ok) throw new Error('wttr.in failed');
+      const data = await res.json();
+      const current = data.current_condition?.[0];
+      const area = data.nearest_area?.[0];
+      if (!current) throw new Error('No wttr.in data');
+
+      const city = area?.areaName?.[0]?.value;
+      const region = area?.region?.[0]?.value;
+      const country = area?.country?.[0]?.value;
+      const description = current.weatherDesc?.[0]?.value || 'Current conditions';
+
+      return {
+        location: { city, region, country },
+        theme: themeFromDescription(description),
+        label: description,
+        tempC: parseInt(current.temp_C, 10),
+        humidity: parseInt(current.humidity, 10),
+        windKmh: parseInt(current.windspeedKmph, 10),
+      };
     }
 
     function formatLocation({ city, region, country }) {
@@ -993,28 +1048,83 @@
       return place || 'Your area';
     }
 
-    function renderWeather(location, current) {
-      const info = weatherInfo(current.weather_code);
-      setWeatherTheme(info.theme);
+    function renderWeatherView({ location, theme, emoji, label, tempC, humidity, windKmh }) {
+      setWeatherTheme(theme);
 
-      document.getElementById('weather-emoji').textContent = info.emoji;
+      document.getElementById('weather-emoji').textContent = emoji;
       document.getElementById('weather-location').textContent = formatLocation(location);
-      document.getElementById('weather-temp').textContent = `${Math.round(current.temperature_2m)}°C`;
-      document.getElementById('weather-label').textContent = info.label;
-      document.getElementById('weather-humidity').textContent = `💧 ${current.relative_humidity_2m}% humidity`;
-      document.getElementById('weather-wind').textContent = `🌬️ ${Math.round(current.wind_speed_10m)} km/h`;
+      document.getElementById('weather-temp').textContent = `${Math.round(tempC)}°C`;
+      document.getElementById('weather-label').textContent = label;
+      document.getElementById('weather-humidity').textContent = `💧 ${humidity}% humidity`;
+      document.getElementById('weather-wind').textContent = `🌬️ ${Math.round(windKmh)} km/h`;
 
       showWeatherState('content');
     }
 
+    function renderWeatherFromOpenMeteo(location, current) {
+      const info = weatherInfo(current.weather_code);
+      const view = {
+        location,
+        theme: info.theme,
+        emoji: info.emoji,
+        label: info.label,
+        tempC: current.temperature_2m,
+        humidity: current.relative_humidity_2m,
+        windKmh: current.wind_speed_10m,
+      };
+      cacheWeather(view);
+      renderWeatherView(view);
+    }
+
+    function renderWeatherFromWttr(payload) {
+      const themeEmojis = {
+        sunny: '☀️', partly: '⛅', cloudy: '☁️', fog: '🌫️',
+        rain: '🌧️', snow: '❄️', storm: '⛈️',
+      };
+      const view = {
+        location: payload.location,
+        theme: payload.theme,
+        emoji: themeEmojis[payload.theme] || '🌤️',
+        label: payload.label,
+        tempC: payload.tempC,
+        humidity: payload.humidity,
+        windKmh: payload.windKmh,
+      };
+      cacheWeather(view);
+      renderWeatherView(view);
+    }
+
     async function loadWeather() {
-      showWeatherState('loading');
+      const cached = loadCachedWeather();
+      if (cached?.location) {
+        renderWeatherView(cached);
+      } else {
+        showWeatherState('loading');
+      }
+
+      if (window.location.protocol === 'file:') {
+        showWeatherState('error', 'Open via a web server or your deployed URL — file:// blocks some weather APIs.');
+        return;
+      }
+
       try {
         const location = await fetchLocationFromIP();
-        const current = await fetchWeather(location.lat, location.lon);
-        renderWeather(location, current);
-      } catch {
-        showWeatherState('error');
+        const current = await fetchWeatherFromOpenMeteo(location.lat, location.lon);
+        renderWeatherFromOpenMeteo(location, current);
+      } catch (primaryErr) {
+        try {
+          const wttr = await fetchWeatherFromWttr();
+          renderWeatherFromWttr(wttr);
+        } catch (fallbackErr) {
+          if (cached?.location) {
+            showWeatherState('content');
+            return;
+          }
+          const detail = primaryErr?.name === 'AbortError' || fallbackErr?.name === 'AbortError'
+            ? 'Request timed out — check your connection and try again.'
+            : 'Location or weather service may be blocked. Try disabling ad blockers, or hard-refresh (Cmd+Shift+R).';
+          showWeatherState('error', detail);
+        }
       }
     }
 
