@@ -257,6 +257,82 @@
     .settings-chevron.open {
       transform: rotate(180deg);
     }
+
+    .weather-card {
+      transition: background 0.5s ease, border-color 0.5s ease, box-shadow 0.5s ease;
+    }
+
+    .weather-sunny {
+      background: linear-gradient(135deg, rgba(251, 191, 36, 0.14) 0%, rgba(245, 158, 11, 0.06) 100%);
+      border-color: rgba(251, 191, 36, 0.28);
+      box-shadow: 0 4px 24px rgba(251, 191, 36, 0.08);
+    }
+    .weather-sunny .weather-temp { color: #fcd34d; }
+    .weather-sunny .weather-label { color: #fbbf24; }
+
+    .weather-partly {
+      background: linear-gradient(135deg, rgba(125, 211, 252, 0.12) 0%, rgba(96, 165, 250, 0.06) 100%);
+      border-color: rgba(125, 211, 252, 0.25);
+      box-shadow: 0 4px 24px rgba(125, 211, 252, 0.07);
+    }
+    .weather-partly .weather-temp { color: #7dd3fc; }
+    .weather-partly .weather-label { color: #93c5fd; }
+
+    .weather-cloudy {
+      background: linear-gradient(135deg, rgba(148, 163, 184, 0.14) 0%, rgba(100, 116, 139, 0.06) 100%);
+      border-color: rgba(148, 163, 184, 0.25);
+      box-shadow: 0 4px 24px rgba(148, 163, 184, 0.06);
+    }
+    .weather-cloudy .weather-temp { color: #cbd5e1; }
+    .weather-cloudy .weather-label { color: #94a3b8; }
+
+    .weather-fog {
+      background: linear-gradient(135deg, rgba(168, 180, 212, 0.14) 0%, rgba(139, 152, 196, 0.06) 100%);
+      border-color: rgba(168, 180, 212, 0.28);
+      box-shadow: 0 4px 24px rgba(168, 180, 212, 0.07);
+    }
+    .weather-fog .weather-temp { color: #c4b5fd; }
+    .weather-fog .weather-label { color: #a8b4d4; }
+
+    .weather-rain {
+      background: linear-gradient(135deg, rgba(56, 189, 248, 0.14) 0%, rgba(14, 165, 233, 0.06) 100%);
+      border-color: rgba(56, 189, 248, 0.28);
+      box-shadow: 0 4px 24px rgba(56, 189, 248, 0.08);
+    }
+    .weather-rain .weather-temp { color: #67e8f9; }
+    .weather-rain .weather-label { color: #38bdf8; }
+
+    .weather-snow {
+      background: linear-gradient(135deg, rgba(186, 230, 253, 0.14) 0%, rgba(224, 242, 254, 0.06) 100%);
+      border-color: rgba(186, 230, 253, 0.3);
+      box-shadow: 0 4px 24px rgba(186, 230, 253, 0.08);
+    }
+    .weather-snow .weather-temp { color: #e0f2fe; }
+    .weather-snow .weather-label { color: #bae6fd; }
+
+    .weather-storm {
+      background: linear-gradient(135deg, rgba(167, 139, 250, 0.16) 0%, rgba(99, 102, 241, 0.08) 100%);
+      border-color: rgba(167, 139, 250, 0.3);
+      box-shadow: 0 4px 24px rgba(99, 102, 241, 0.1);
+    }
+    .weather-storm .weather-temp { color: #c4b5fd; }
+    .weather-storm .weather-label { color: #a78bfa; }
+
+    .weather-loading {
+      background: rgba(255, 255, 255, 0.03);
+      border-color: rgba(255, 255, 255, 0.08);
+    }
+
+    .weather-shimmer {
+      background: linear-gradient(90deg, rgba(255,255,255,0.04) 25%, rgba(255,255,255,0.08) 50%, rgba(255,255,255,0.04) 75%);
+      background-size: 200% 100%;
+      animation: shimmer 1.5s ease-in-out infinite;
+    }
+
+    @keyframes shimmer {
+      0% { background-position: 200% 0; }
+      100% { background-position: -200% 0; }
+    }
   </style>
 </head>
 <body class="font-sans antialiased">
@@ -274,6 +350,51 @@
         A gentle place to notice how you feel
       </p>
     </header>
+
+    <!-- Weather -->
+    <div
+      id="weather-card"
+      class="weather-card weather-loading glass rounded-2xl px-5 py-4 mb-6 sm:mb-8 fade-up fade-up-1 border"
+      role="region"
+      aria-label="Local weather"
+      aria-live="polite"
+    >
+      <div id="weather-loading" class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-xl weather-shimmer flex-shrink-0"></div>
+        <div class="flex-1 space-y-2">
+          <div class="h-3 w-24 rounded-full weather-shimmer"></div>
+          <div class="h-2.5 w-36 rounded-full weather-shimmer"></div>
+        </div>
+      </div>
+      <div id="weather-content" class="hidden">
+        <div class="flex items-center justify-between gap-4">
+          <div class="flex items-center gap-3 sm:gap-4 min-w-0">
+            <span id="weather-emoji" class="text-3xl sm:text-4xl flex-shrink-0" aria-hidden="true"></span>
+            <div class="min-w-0">
+              <p id="weather-location" class="text-sm text-vibe-muted truncate"></p>
+              <p class="flex items-baseline gap-2 flex-wrap">
+                <span id="weather-temp" class="weather-temp font-display text-2xl sm:text-3xl font-medium transition-colors duration-500"></span>
+                <span id="weather-label" class="weather-label text-sm font-medium transition-colors duration-500"></span>
+              </p>
+            </div>
+          </div>
+          <div class="text-right flex-shrink-0 text-xs text-vibe-muted space-y-1">
+            <p id="weather-humidity"></p>
+            <p id="weather-wind"></p>
+          </div>
+        </div>
+      </div>
+      <div id="weather-error" class="hidden text-center py-1">
+        <p class="text-sm text-vibe-muted mb-2">Couldn't load weather right now</p>
+        <button
+          type="button"
+          id="weather-retry"
+          class="text-xs text-vibe-cool hover:text-vibe-glow transition-colors focus:outline-none focus:underline"
+        >
+          Try again
+        </button>
+      </div>
+    </div>
 
     <!-- Streak highlight -->
     <div id="streak-banner" class="streak-glow rounded-2xl px-5 py-4 mb-6 sm:mb-8 flex items-center justify-between gap-4 fade-up fade-up-1 hidden">
@@ -437,6 +558,39 @@
     ];
 
     let currentMood = 3;
+
+    const WEATHER_THEMES = ['sunny', 'partly', 'cloudy', 'fog', 'rain', 'snow', 'storm'];
+
+    const WMO_WEATHER = {
+      0:  { theme: 'sunny',  emoji: '☀️', label: 'Clear' },
+      1:  { theme: 'sunny',  emoji: '🌤️', label: 'Mostly clear' },
+      2:  { theme: 'partly', emoji: '⛅', label: 'Partly cloudy' },
+      3:  { theme: 'cloudy', emoji: '☁️', label: 'Overcast' },
+      45: { theme: 'fog',    emoji: '🌫️', label: 'Foggy' },
+      48: { theme: 'fog',    emoji: '🌫️', label: 'Foggy' },
+      51: { theme: 'rain',   emoji: '🌦️', label: 'Light drizzle' },
+      53: { theme: 'rain',   emoji: '🌦️', label: 'Drizzle' },
+      55: { theme: 'rain',   emoji: '🌧️', label: 'Heavy drizzle' },
+      56: { theme: 'rain',   emoji: '🌧️', label: 'Freezing drizzle' },
+      57: { theme: 'rain',   emoji: '🌧️', label: 'Freezing drizzle' },
+      61: { theme: 'rain',   emoji: '🌧️', label: 'Light rain' },
+      63: { theme: 'rain',   emoji: '🌧️', label: 'Rain' },
+      65: { theme: 'rain',   emoji: '🌧️', label: 'Heavy rain' },
+      66: { theme: 'rain',   emoji: '🌧️', label: 'Freezing rain' },
+      67: { theme: 'rain',   emoji: '🌧️', label: 'Freezing rain' },
+      71: { theme: 'snow',   emoji: '🌨️', label: 'Light snow' },
+      73: { theme: 'snow',   emoji: '❄️', label: 'Snow' },
+      75: { theme: 'snow',   emoji: '❄️', label: 'Heavy snow' },
+      77: { theme: 'snow',   emoji: '❄️', label: 'Snow grains' },
+      80: { theme: 'rain',   emoji: '🌦️', label: 'Rain showers' },
+      81: { theme: 'rain',   emoji: '🌧️', label: 'Rain showers' },
+      82: { theme: 'rain',   emoji: '🌧️', label: 'Heavy showers' },
+      85: { theme: 'snow',   emoji: '🌨️', label: 'Snow showers' },
+      86: { theme: 'snow',   emoji: '❄️', label: 'Heavy snow showers' },
+      95: { theme: 'storm',  emoji: '⛈️', label: 'Thunderstorm' },
+      96: { theme: 'storm',  emoji: '⛈️', label: 'Thunderstorm' },
+      99: { theme: 'storm',  emoji: '⛈️', label: 'Thunderstorm' },
+    };
 
     function moodToEmoji(mood) {
       const rounded = Math.max(1, Math.min(5, Math.round(mood)));
@@ -743,6 +897,127 @@
       showToast('All data cleared — a fresh start awaits');
     }
 
+    function weatherInfo(code) {
+      return WMO_WEATHER[code] ?? { theme: 'cloudy', emoji: '🌡️', label: 'Unknown' };
+    }
+
+    function setWeatherTheme(theme) {
+      const card = document.getElementById('weather-card');
+      WEATHER_THEMES.forEach(t => card.classList.remove(`weather-${t}`));
+      card.classList.remove('weather-loading');
+      card.classList.add(`weather-${theme}`);
+    }
+
+    function showWeatherState(state) {
+      document.getElementById('weather-loading').classList.toggle('hidden', state !== 'loading');
+      document.getElementById('weather-content').classList.toggle('hidden', state !== 'content');
+      document.getElementById('weather-error').classList.toggle('hidden', state !== 'error');
+      if (state === 'loading') {
+        const card = document.getElementById('weather-card');
+        WEATHER_THEMES.forEach(t => card.classList.remove(`weather-${t}`));
+        card.classList.add('weather-loading');
+      }
+    }
+
+    async function fetchLocationFromIP() {
+      const providers = [
+        async () => {
+          const res = await fetch('https://get.geojs.io/v1/ip/geo.json');
+          if (!res.ok) throw new Error('geojs failed');
+          const data = await res.json();
+          return {
+            lat: parseFloat(data.latitude),
+            lon: parseFloat(data.longitude),
+            city: data.city,
+            region: data.region,
+            country: data.country,
+          };
+        },
+        async () => {
+          const res = await fetch('https://ipwho.is/');
+          if (!res.ok) throw new Error('ipwho failed');
+          const data = await res.json();
+          if (!data.success) throw new Error('ipwho error');
+          return {
+            lat: data.latitude,
+            lon: data.longitude,
+            city: data.city,
+            region: data.region,
+            country: data.country,
+          };
+        },
+        async () => {
+          const res = await fetch('https://ipapi.co/json/');
+          if (!res.ok) throw new Error('ipapi failed');
+          const data = await res.json();
+          if (data.error) throw new Error(data.reason || 'ipapi error');
+          return {
+            lat: data.latitude,
+            lon: data.longitude,
+            city: data.city,
+            region: data.region,
+            country: data.country_name,
+          };
+        },
+      ];
+
+      let lastError;
+      for (const provider of providers) {
+        try {
+          return await provider();
+        } catch (err) {
+          lastError = err;
+        }
+      }
+      throw lastError ?? new Error('Location lookup failed');
+    }
+
+    async function fetchWeather(lat, lon) {
+      const params = new URLSearchParams({
+        latitude: lat,
+        longitude: lon,
+        current: 'temperature_2m,relative_humidity_2m,weather_code,wind_speed_10m',
+        temperature_unit: 'celsius',
+        wind_speed_unit: 'kmh',
+      });
+      const res = await fetch(`https://api.open-meteo.com/v1/forecast?${params}`);
+      if (!res.ok) throw new Error('Weather fetch failed');
+      const data = await res.json();
+      if (!data.current) throw new Error('No weather data');
+      return data.current;
+    }
+
+    function formatLocation({ city, region, country }) {
+      const parts = [city, region].filter(Boolean);
+      const place = parts.length ? parts.join(', ') : country;
+      return place || 'Your area';
+    }
+
+    function renderWeather(location, current) {
+      const info = weatherInfo(current.weather_code);
+      setWeatherTheme(info.theme);
+
+      document.getElementById('weather-emoji').textContent = info.emoji;
+      document.getElementById('weather-location').textContent = formatLocation(location);
+      document.getElementById('weather-temp').textContent = `${Math.round(current.temperature_2m)}°C`;
+      document.getElementById('weather-label').textContent = info.label;
+      document.getElementById('weather-humidity').textContent = `💧 ${current.relative_humidity_2m}% humidity`;
+      document.getElementById('weather-wind').textContent = `🌬️ ${Math.round(current.wind_speed_10m)} km/h`;
+
+      showWeatherState('content');
+    }
+
+    async function loadWeather() {
+      showWeatherState('loading');
+      try {
+        const location = await fetchLocationFromIP();
+        const current = await fetchWeather(location.lat, location.lon);
+        renderWeather(location, current);
+      } catch {
+        showWeatherState('error');
+      }
+    }
+
     function toggleSettings() {
       const panel = document.getElementById('settings-panel');
       const toggle = document.getElementById('settings-toggle');
@@ -764,9 +1039,11 @@
       document.getElementById('export-btn').addEventListener('click', exportData);
       document.getElementById('clear-btn').addEventListener('click', clearAllData);
       document.getElementById('settings-toggle').addEventListener('click', toggleSettings);
+      document.getElementById('weather-retry').addEventListener('click', loadWeather);
 
       renderStats();
       renderHistory();
+      loadWeather();
     }
 
     init();
