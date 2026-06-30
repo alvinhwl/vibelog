@@ -1,0 +1,509 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>VibeLog</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,400&family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,500;0,9..144,600;1,9..144,400&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            display: ['Fraunces', 'Georgia', 'serif'],
+            sans: ['DM Sans', 'system-ui', 'sans-serif'],
+          },
+          colors: {
+            vibe: {
+              bg: '#0c1017',
+              surface: 'rgba(255,255,255,0.04)',
+              border: 'rgba(255,255,255,0.08)',
+              text: '#e8eaed',
+              muted: '#8b95a5',
+              warm: '#c4a882',
+              cool: '#7eb8a8',
+              glow: '#a8c4b8',
+            },
+          },
+        },
+      },
+    };
+  </script>
+  <style>
+    body {
+      background: linear-gradient(165deg, #0c1017 0%, #121820 45%, #161d2a 100%);
+      min-height: 100vh;
+      color: #e8eaed;
+    }
+
+    .glass {
+      background: rgba(255, 255, 255, 0.04);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    .ambient-orb {
+      position: fixed;
+      border-radius: 50%;
+      filter: blur(90px);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .fade-up {
+      animation: fadeUp 0.55s ease-out both;
+    }
+
+    .fade-up-1 { animation-delay: 0.08s; }
+    .fade-up-2 { animation-delay: 0.16s; }
+    .fade-up-3 { animation-delay: 0.24s; }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(14px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes cardIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .card-in {
+      animation: cardIn 0.4s ease-out both;
+    }
+
+    .emoji-btn {
+      transition: transform 0.22s ease, box-shadow 0.22s ease, background 0.22s ease;
+    }
+
+    .emoji-btn:hover {
+      transform: scale(1.1) translateY(-2px);
+      background: rgba(255, 255, 255, 0.06);
+    }
+
+    .emoji-btn.selected {
+      transform: scale(1.14) translateY(-3px);
+      box-shadow: 0 0 28px rgba(168, 196, 184, 0.35);
+      background: rgba(126, 184, 168, 0.12);
+      border-color: rgba(126, 184, 168, 0.35);
+    }
+
+    .input-field {
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .input-field:focus {
+      outline: none;
+      border-color: rgba(196, 168, 130, 0.45);
+      box-shadow: 0 0 0 3px rgba(196, 168, 130, 0.1);
+    }
+
+    .save-btn {
+      transition: transform 0.18s ease, box-shadow 0.22s ease, background 0.22s ease;
+    }
+
+    .save-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 24px rgba(196, 168, 130, 0.28);
+    }
+
+    .save-btn:active {
+      transform: translateY(0);
+    }
+
+    .save-btn.saved {
+      background: #7eb8a8 !important;
+    }
+
+    .delete-btn {
+      opacity: 0;
+      transition: opacity 0.2s ease, color 0.2s ease;
+    }
+
+    .entry-card:hover .delete-btn,
+    .entry-card:focus-within .delete-btn {
+      opacity: 1;
+    }
+
+    .tag-pill {
+      background: rgba(126, 184, 168, 0.1);
+      border: 1px solid rgba(126, 184, 168, 0.22);
+      color: #9ec9bc;
+    }
+
+    .toast {
+      animation: toastIn 0.35s ease-out, toastOut 0.35s ease-in 1.4s forwards;
+    }
+
+    @keyframes toastIn {
+      from { opacity: 0; transform: translate(-50%, 10px); }
+      to { opacity: 1; transform: translate(-50%, 0); }
+    }
+
+    @keyframes toastOut {
+      from { opacity: 1; }
+      to { opacity: 0; }
+    }
+  </style>
+</head>
+<body class="font-sans antialiased">
+  <div class="ambient-orb w-80 h-80 bg-indigo-900/20 -top-24 -left-24"></div>
+  <div class="ambient-orb w-[28rem] h-[28rem] bg-teal-900/15 top-1/3 -right-36"></div>
+  <div class="ambient-orb w-72 h-72 bg-amber-900/10 bottom-0 left-1/3"></div>
+
+  <main class="relative z-10 max-w-xl mx-auto px-5 py-10 sm:py-14">
+    <header class="text-center mb-10 fade-up">
+      <h1 class="font-display text-4xl sm:text-5xl font-medium text-vibe-text tracking-tight">
+        VibeLog
+      </h1>
+      <p class="mt-2 text-vibe-muted text-lg font-light italic font-display">
+        A gentle place to notice how you feel
+      </p>
+    </header>
+
+    <!-- Log Form -->
+    <section aria-label="Log today's vibe" class="glass rounded-3xl p-6 sm:p-8 mb-10 fade-up fade-up-1">
+      <h2 class="font-display text-xl text-vibe-text mb-1">How are you feeling?</h2>
+      <p class="text-sm text-vibe-muted mb-6">Tap a mood, add a note if you'd like, and save.</p>
+
+      <div class="flex justify-between gap-2 sm:gap-3 mb-7" role="group" aria-label="Mood emoji selector">
+        <button type="button" class="emoji-btn flex-1 text-4xl sm:text-5xl py-4 rounded-2xl glass border border-transparent focus:outline-none focus:ring-2 focus:ring-vibe-cool/40" data-mood="1" aria-label="Sad mood">😢</button>
+        <button type="button" class="emoji-btn flex-1 text-4xl sm:text-5xl py-4 rounded-2xl glass border border-transparent focus:outline-none focus:ring-2 focus:ring-vibe-cool/40" data-mood="2" aria-label="Neutral mood">😐</button>
+        <button type="button" class="emoji-btn flex-1 text-4xl sm:text-5xl py-4 rounded-2xl glass border border-transparent focus:outline-none focus:ring-2 focus:ring-vibe-cool/40 selected" data-mood="3" aria-label="Okay mood">🙂</button>
+        <button type="button" class="emoji-btn flex-1 text-4xl sm:text-5xl py-4 rounded-2xl glass border border-transparent focus:outline-none focus:ring-2 focus:ring-vibe-cool/40" data-mood="4" aria-label="Happy mood">😊</button>
+        <button type="button" class="emoji-btn flex-1 text-4xl sm:text-5xl py-4 rounded-2xl glass border border-transparent focus:outline-none focus:ring-2 focus:ring-vibe-cool/40" data-mood="5" aria-label="Amazing mood">🤩</button>
+      </div>
+
+      <div class="mb-4">
+        <label for="note-input" class="block text-sm text-vibe-muted mb-2">
+          Note <span class="text-vibe-muted/50">(optional)</span>
+        </label>
+        <textarea
+          id="note-input"
+          rows="2"
+          maxlength="280"
+          placeholder="A few words about today..."
+          class="input-field w-full rounded-xl px-4 py-3 text-vibe-text placeholder:text-vibe-muted/45 resize-none"
+        ></textarea>
+      </div>
+
+      <div class="mb-4">
+        <label for="tags-input" class="block text-sm text-vibe-muted mb-2">
+          Tags <span class="text-vibe-muted/50">(optional, comma separated)</span>
+        </label>
+        <input
+          type="text"
+          id="tags-input"
+          placeholder="calm, grateful, tired"
+          class="input-field w-full rounded-xl px-4 py-3 text-vibe-text placeholder:text-vibe-muted/45"
+        >
+      </div>
+
+      <p class="text-sm text-vibe-muted mb-6 flex items-center gap-2">
+        <span aria-hidden="true">📅</span>
+        <span id="datetime-text"></span>
+      </p>
+
+      <button
+        type="button"
+        id="save-btn"
+        class="save-btn w-full py-3.5 rounded-xl bg-vibe-warm text-vibe-bg font-medium text-base focus:outline-none focus:ring-2 focus:ring-vibe-warm/50"
+      >
+        Save entry
+      </button>
+    </section>
+
+    <!-- History -->
+    <section aria-label="Your journey" class="mb-10 fade-up fade-up-2">
+      <h2 class="font-display text-xl text-vibe-text mb-5">Your journey</h2>
+      <div id="history-list" class="space-y-3"></div>
+      <div id="history-empty" class="glass rounded-2xl p-8 text-center">
+        <p class="text-4xl mb-3" aria-hidden="true">🌱</p>
+        <p class="text-vibe-text font-display text-lg mb-2">Your vibe journey starts here</p>
+        <p class="text-vibe-muted text-sm leading-relaxed">Log how you're feeling — it only takes a moment.</p>
+      </div>
+    </section>
+
+    <!-- Stats -->
+    <section aria-label="Your stats" class="grid grid-cols-3 gap-3 fade-up fade-up-3">
+      <div class="glass rounded-2xl p-4 text-center">
+        <p class="text-xs uppercase tracking-wider text-vibe-muted mb-1">Avg mood</p>
+        <p id="stat-avg" class="text-2xl font-display text-vibe-cool">—</p>
+        <p id="stat-avg-emoji" class="text-lg mt-0.5" aria-hidden="true"></p>
+      </div>
+      <div class="glass rounded-2xl p-4 text-center">
+        <p class="text-xs uppercase tracking-wider text-vibe-muted mb-1">Streak</p>
+        <p class="text-2xl font-display text-vibe-warm">
+          <span id="stat-streak">0</span>
+          <span class="text-base text-vibe-muted">days</span>
+        </p>
+        <p id="stat-streak-note" class="text-xs text-vibe-muted mt-0.5 hidden">keep showing up</p>
+      </div>
+      <div class="glass rounded-2xl p-4 text-center">
+        <p class="text-xs uppercase tracking-wider text-vibe-muted mb-1">Entries</p>
+        <p id="stat-total" class="text-2xl font-display text-vibe-text">0</p>
+      </div>
+    </section>
+  </main>
+
+  <div id="toast" class="fixed bottom-6 left-1/2 -translate-x-1/2 glass rounded-full px-5 py-2.5 text-sm text-vibe-cool hidden toast" role="status"></div>
+
+  <script>
+    const STORAGE_KEY = 'vibelog_entries';
+
+    const MOODS = [
+      { value: 1, emoji: '😢', label: 'Sad' },
+      { value: 2, emoji: '😐', label: 'Neutral' },
+      { value: 3, emoji: '🙂', label: 'Okay' },
+      { value: 4, emoji: '😊', label: 'Happy' },
+      { value: 5, emoji: '🤩', label: 'Amazing' },
+    ];
+
+    let currentMood = 3;
+
+    function moodToEmoji(mood) {
+      const rounded = Math.max(1, Math.min(5, Math.round(mood)));
+      return MOODS.find(m => m.value === rounded)?.emoji ?? '🙂';
+    }
+
+    function generateId() {
+      if (crypto.randomUUID) return crypto.randomUUID();
+      return Date.now().toString(36) + Math.random().toString(36).slice(2);
+    }
+
+    function loadEntries() {
+      try {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        if (!raw) return [];
+        const parsed = JSON.parse(raw);
+        return Array.isArray(parsed) ? parsed : [];
+      } catch {
+        return [];
+      }
+    }
+
+    function saveEntries(entries) {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(entries));
+    }
+
+    function localDateKey(iso) {
+      const d = new Date(iso);
+      const y = d.getFullYear();
+      const m = String(d.getMonth() + 1).padStart(2, '0');
+      const day = String(d.getDate()).padStart(2, '0');
+      return `${y}-${m}-${day}`;
+    }
+
+    function formatDate(iso) {
+      return new Date(iso).toLocaleString(undefined, {
+        weekday: 'short',
+        month: 'short',
+        day: 'numeric',
+        hour: 'numeric',
+        minute: '2-digit',
+      });
+    }
+
+    function parseTags(input) {
+      if (!input.trim()) return [];
+      return input.split(',').map(t => t.trim().toLowerCase()).filter(Boolean);
+    }
+
+    function escapeHtml(str) {
+      const div = document.createElement('div');
+      div.textContent = str;
+      return div.innerHTML;
+    }
+
+    function computeStats(entries) {
+      const total = entries.length;
+      if (total === 0) return { avg: null, streak: 0, total: 0 };
+
+      const avg = entries.reduce((sum, e) => sum + e.mood, 0) / total;
+
+      const dates = new Set(entries.map(e => localDateKey(e.timestamp)));
+      const today = new Date();
+      let streak = 0;
+      let check = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+
+      const todayKey = localDateKey(check.toISOString());
+      if (!dates.has(todayKey)) {
+        check.setDate(check.getDate() - 1);
+      }
+
+      while (dates.has(localDateKey(check.toISOString()))) {
+        streak++;
+        check.setDate(check.getDate() - 1);
+      }
+
+      return { avg, streak, total };
+    }
+
+    function updateDateTime() {
+      const now = new Date();
+      document.getElementById('datetime-text').textContent = now.toLocaleString(undefined, {
+        weekday: 'long',
+        month: 'long',
+        day: 'numeric',
+        year: 'numeric',
+        hour: 'numeric',
+        minute: '2-digit',
+      });
+    }
+
+    function setMood(value) {
+      currentMood = value;
+      document.querySelectorAll('.emoji-btn').forEach(btn => {
+        btn.classList.toggle('selected', Number(btn.dataset.mood) === value);
+      });
+    }
+
+    function showToast(message) {
+      const toast = document.getElementById('toast');
+      toast.textContent = message;
+      toast.classList.remove('hidden', 'toast');
+      void toast.offsetWidth;
+      toast.classList.add('toast');
+      setTimeout(() => toast.classList.add('hidden'), 1800);
+    }
+
+    function renderStats() {
+      const { avg, streak, total } = computeStats(loadEntries());
+
+      document.getElementById('stat-avg').textContent = avg !== null ? avg.toFixed(1) : '—';
+      document.getElementById('stat-avg-emoji').textContent = avg !== null ? moodToEmoji(avg) : '';
+      document.getElementById('stat-streak').textContent = streak;
+      document.getElementById('stat-total').textContent = total;
+
+      const note = document.getElementById('stat-streak-note');
+      note.classList.toggle('hidden', streak < 2);
+    }
+
+    function renderHistory() {
+      const entries = loadEntries().sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+      const list = document.getElementById('history-list');
+      const empty = document.getElementById('history-empty');
+
+      if (entries.length === 0) {
+        list.innerHTML = '';
+        empty.classList.remove('hidden');
+        return;
+      }
+
+      empty.classList.add('hidden');
+      list.innerHTML = entries.map((entry, i) => `
+        <article
+          class="entry-card card-in glass rounded-2xl p-4 sm:p-5 relative group"
+          style="animation-delay: ${Math.min(i * 0.05, 0.3)}s"
+          data-id="${entry.id}"
+        >
+          <div class="flex items-start justify-between gap-3">
+            <div class="flex items-start gap-3 min-w-0">
+              <span class="text-3xl flex-shrink-0" aria-hidden="true">${moodToEmoji(entry.mood)}</span>
+              <div class="min-w-0">
+                <div class="flex items-baseline gap-2 flex-wrap">
+                  <span class="font-display text-base text-vibe-warm">${MOODS.find(m => m.value === entry.mood)?.label ?? 'Mood'}</span>
+                  <span class="text-sm text-vibe-muted">${formatDate(entry.timestamp)}</span>
+                </div>
+                ${entry.note ? `<p class="text-vibe-text/90 text-sm mt-2 leading-relaxed">${escapeHtml(entry.note)}</p>` : ''}
+                ${entry.tags?.length ? `
+                  <div class="flex flex-wrap gap-1.5 mt-2">
+                    ${entry.tags.map(t => `<span class="tag-pill text-xs px-2.5 py-0.5 rounded-full">#${escapeHtml(t)}</span>`).join('')}
+                  </div>
+                ` : ''}
+              </div>
+            </div>
+            <button
+              type="button"
+              class="delete-btn flex-shrink-0 text-vibe-muted hover:text-red-400/80 p-1.5 rounded focus:outline-none focus:ring-2 focus:ring-red-400/30"
+              aria-label="Delete this entry"
+              data-delete="${entry.id}"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></svg>
+            </button>
+          </div>
+        </article>
+      `).join('');
+
+      list.querySelectorAll('[data-delete]').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const id = btn.dataset.delete;
+          const card = list.querySelector(`[data-id="${id}"]`);
+          if (card) {
+            card.style.transition = 'opacity 0.25s ease, transform 0.25s ease';
+            card.style.opacity = '0';
+            card.style.transform = 'translateX(8px)';
+            setTimeout(() => deleteEntry(id), 250);
+          } else {
+            deleteEntry(id);
+          }
+        });
+      });
+    }
+
+    function addEntry({ mood, note, tags }) {
+      const entries = loadEntries();
+      entries.push({
+        id: generateId(),
+        mood,
+        note: note.trim(),
+        tags,
+        timestamp: new Date().toISOString(),
+      });
+      saveEntries(entries);
+      renderStats();
+      renderHistory();
+    }
+
+    function deleteEntry(id) {
+      saveEntries(loadEntries().filter(e => e.id !== id));
+      renderStats();
+      renderHistory();
+    }
+
+    function handleSave() {
+      const note = document.getElementById('note-input').value;
+      const tags = parseTags(document.getElementById('tags-input').value);
+
+      addEntry({ mood: currentMood, note, tags });
+
+      document.getElementById('note-input').value = '';
+      document.getElementById('tags-input').value = '';
+      setMood(3);
+
+      const btn = document.getElementById('save-btn');
+      const original = btn.textContent;
+      btn.textContent = 'Saved ✓';
+      btn.classList.add('saved');
+      showToast('Vibe logged — nice work showing up for yourself');
+
+      setTimeout(() => {
+        btn.textContent = original;
+        btn.classList.remove('saved');
+      }, 1500);
+    }
+
+    function init() {
+      updateDateTime();
+      setInterval(updateDateTime, 30000);
+
+      document.querySelectorAll('.emoji-btn').forEach(btn => {
+        btn.addEventListener('click', () => setMood(Number(btn.dataset.mood)));
+      });
+
+      document.getElementById('save-btn').addEventListener('click', handleSave);
+
+      renderStats();
+      renderHistory();
+    }
+
+    init();
+  </script>
+</body>
+</html>
