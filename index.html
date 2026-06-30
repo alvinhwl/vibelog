@@ -1,4 +1,3 @@
-<! -- TEST PUSH -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -7,7 +6,7 @@
   <title>VibeLog</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,400&family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,500;0,9..144,600;1,9..144,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,400&family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;0,9..144,500;0,9..144,600;1,9..144,400&display=swap" rel="stylesheet">
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
     tailwind.config = {
@@ -19,14 +18,41 @@
           },
           colors: {
             vibe: {
-              bg: '#0c1017',
-              surface: 'rgba(255,255,255,0.04)',
-              border: 'rgba(255,255,255,0.08)',
-              text: '#e8eaed',
-              muted: '#8b95a5',
-              warm: '#c4a882',
-              cool: '#7eb8a8',
-              glow: '#a8c4b8',
+              bg: '#0f1419',
+              surface: 'rgba(255,255,255,0.05)',
+              border: 'rgba(255,255,255,0.09)',
+              text: '#eef1f4',
+              muted: '#9aa5b4',
+              warm: '#d4b896',
+              cool: '#8ec9b8',
+              glow: '#b8d4c8',
+              lavender: '#a8b4d4',
+              sage: '#9eb8a8',
+            },
+          },
+          animation: {
+            'fade-in': 'fadeIn 0.7s ease-out both',
+            'fade-in-slow': 'fadeIn 1s ease-out both',
+            'slide-in': 'slideIn 0.5s cubic-bezier(0.22, 1, 0.36, 1) both',
+            'scale-in': 'scaleIn 0.35s cubic-bezier(0.34, 1.56, 0.64, 1) both',
+            'gentle-pulse': 'gentlePulse 3s ease-in-out infinite',
+          },
+          keyframes: {
+            fadeIn: {
+              '0%': { opacity: '0', transform: 'translateY(12px)' },
+              '100%': { opacity: '1', transform: 'translateY(0)' },
+            },
+            slideIn: {
+              '0%': { opacity: '0', transform: 'translateX(-16px)' },
+              '100%': { opacity: '1', transform: 'translateX(0)' },
+            },
+            scaleIn: {
+              '0%': { opacity: '0', transform: 'scale(0.92)' },
+              '100%': { opacity: '1', transform: 'scale(1)' },
+            },
+            gentlePulse: {
+              '0%, 100%': { opacity: '0.6' },
+              '50%': { opacity: '1' },
             },
           },
         },
@@ -35,96 +61,147 @@
   </script>
   <style>
     body {
-      background: linear-gradient(165deg, #0c1017 0%, #121820 45%, #161d2a 100%);
+      background: linear-gradient(
+        145deg,
+        #0e1218 0%,
+        #131a24 25%,
+        #151c28 50%,
+        #121820 75%,
+        #0f151c 100%
+      );
       min-height: 100vh;
-      color: #e8eaed;
+      min-height: 100dvh;
+      color: #eef1f4;
     }
 
     .glass {
-      background: rgba(255, 255, 255, 0.04);
-      backdrop-filter: blur(14px);
-      -webkit-backdrop-filter: blur(14px);
-      border: 1px solid rgba(255, 255, 255, 0.08);
+      background: rgba(255, 255, 255, 0.045);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid rgba(255, 255, 255, 0.09);
+    }
+
+    .glass-soft {
+      background: rgba(255, 255, 255, 0.03);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border: 1px solid rgba(255, 255, 255, 0.06);
     }
 
     .ambient-orb {
       position: fixed;
       border-radius: 50%;
-      filter: blur(90px);
+      filter: blur(100px);
       pointer-events: none;
       z-index: 0;
+      animation: orbFloat 20s ease-in-out infinite;
+    }
+
+    .ambient-orb:nth-child(2) { animation-delay: -7s; }
+    .ambient-orb:nth-child(3) { animation-delay: -14s; }
+
+    @keyframes orbFloat {
+      0%, 100% { transform: translate(0, 0) scale(1); }
+      33% { transform: translate(12px, -8px) scale(1.03); }
+      66% { transform: translate(-8px, 6px) scale(0.97); }
     }
 
     .fade-up {
-      animation: fadeUp 0.55s ease-out both;
+      animation: fadeUp 0.65s cubic-bezier(0.22, 1, 0.36, 1) both;
     }
 
-    .fade-up-1 { animation-delay: 0.08s; }
-    .fade-up-2 { animation-delay: 0.16s; }
-    .fade-up-3 { animation-delay: 0.24s; }
+    .fade-up-1 { animation-delay: 0.1s; }
+    .fade-up-2 { animation-delay: 0.2s; }
+    .fade-up-3 { animation-delay: 0.3s; }
+    .fade-up-4 { animation-delay: 0.4s; }
 
     @keyframes fadeUp {
-      from { opacity: 0; transform: translateY(14px); }
+      from { opacity: 0; transform: translateY(16px); }
       to { opacity: 1; transform: translateY(0); }
     }
 
-    @keyframes cardIn {
-      from { opacity: 0; transform: translateY(10px); }
-      to { opacity: 1; transform: translateY(0); }
+    .entry-slide-in {
+      animation: entrySlideIn 0.55s cubic-bezier(0.22, 1, 0.36, 1) both;
     }
 
-    .card-in {
-      animation: cardIn 0.4s ease-out both;
+    @keyframes entrySlideIn {
+      from { opacity: 0; transform: translateX(-20px); }
+      to { opacity: 1; transform: translateX(0); }
     }
 
     .emoji-btn {
-      transition: transform 0.22s ease, box-shadow 0.22s ease, background 0.22s ease;
+      transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1),
+                  box-shadow 0.3s ease,
+                  background 0.25s ease,
+                  border-color 0.25s ease;
     }
 
     .emoji-btn:hover {
-      transform: scale(1.1) translateY(-2px);
-      background: rgba(255, 255, 255, 0.06);
+      transform: scale(1.08) translateY(-3px);
+      background: rgba(255, 255, 255, 0.07);
+    }
+
+    .emoji-btn:active {
+      transform: scale(0.96);
+      transition-duration: 0.1s;
     }
 
     .emoji-btn.selected {
-      transform: scale(1.14) translateY(-3px);
-      box-shadow: 0 0 28px rgba(168, 196, 184, 0.35);
-      background: rgba(126, 184, 168, 0.12);
-      border-color: rgba(126, 184, 168, 0.35);
+      transform: scale(1.12) translateY(-4px);
+      box-shadow: 0 4px 32px rgba(142, 201, 184, 0.3),
+                  0 0 0 1px rgba(142, 201, 184, 0.2);
+      background: rgba(142, 201, 184, 0.14);
+      border-color: rgba(142, 201, 184, 0.4);
     }
 
     .input-field {
-      background: rgba(255, 255, 255, 0.03);
+      background: rgba(255, 255, 255, 0.035);
       border: 1px solid rgba(255, 255, 255, 0.08);
-      transition: border-color 0.2s ease, box-shadow 0.2s ease;
+      transition: border-color 0.25s ease, box-shadow 0.25s ease, background 0.25s ease;
     }
 
     .input-field:focus {
       outline: none;
-      border-color: rgba(196, 168, 130, 0.45);
-      box-shadow: 0 0 0 3px rgba(196, 168, 130, 0.1);
+      background: rgba(255, 255, 255, 0.05);
+      border-color: rgba(212, 184, 150, 0.5);
+      box-shadow: 0 0 0 3px rgba(212, 184, 150, 0.12);
     }
 
     .save-btn {
-      transition: transform 0.18s ease, box-shadow 0.22s ease, background 0.22s ease;
+      transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1),
+                  box-shadow 0.25s ease,
+                  background 0.25s ease;
     }
 
     .save-btn:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 6px 24px rgba(196, 168, 130, 0.28);
+      transform: translateY(-2px) scale(1.01);
+      box-shadow: 0 8px 28px rgba(212, 184, 150, 0.32);
     }
 
     .save-btn:active {
-      transform: translateY(0);
+      transform: translateY(0) scale(0.99);
     }
 
     .save-btn.saved {
-      background: #7eb8a8 !important;
+      background: #8ec9b8 !important;
+      color: #0f1419 !important;
+    }
+
+    .action-btn {
+      transition: transform 0.2s ease, background 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+    }
+
+    .action-btn:hover {
+      transform: translateY(-1px);
+    }
+
+    .action-btn:active {
+      transform: translateY(0);
     }
 
     .delete-btn {
       opacity: 0;
-      transition: opacity 0.2s ease, color 0.2s ease;
+      transition: opacity 0.25s ease, color 0.2s ease, transform 0.2s ease;
     }
 
     .entry-card:hover .delete-btn,
@@ -132,57 +209,101 @@
       opacity: 1;
     }
 
+    @media (hover: none) {
+      .delete-btn { opacity: 0.6; }
+    }
+
     .tag-pill {
-      background: rgba(126, 184, 168, 0.1);
-      border: 1px solid rgba(126, 184, 168, 0.22);
-      color: #9ec9bc;
+      background: rgba(142, 201, 184, 0.1);
+      border: 1px solid rgba(142, 201, 184, 0.22);
+      color: #a8d4c4;
+    }
+
+    .streak-glow {
+      background: linear-gradient(135deg, rgba(212, 184, 150, 0.12) 0%, rgba(142, 201, 184, 0.08) 100%);
+      border: 1px solid rgba(212, 184, 150, 0.2);
     }
 
     .toast {
-      animation: toastIn 0.35s ease-out, toastOut 0.35s ease-in 1.4s forwards;
+      animation: toastIn 0.4s cubic-bezier(0.22, 1, 0.36, 1), toastOut 0.35s ease-in 1.6s forwards;
     }
 
     @keyframes toastIn {
-      from { opacity: 0; transform: translate(-50%, 10px); }
-      to { opacity: 1; transform: translate(-50%, 0); }
+      from { opacity: 0; transform: translate(-50%, 14px) scale(0.96); }
+      to { opacity: 1; transform: translate(-50%, 0) scale(1); }
     }
 
     @keyframes toastOut {
       from { opacity: 1; }
-      to { opacity: 0; }
+      to { opacity: 0; transform: translate(-50%, 6px); }
+    }
+
+    .settings-panel {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.4s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.3s ease;
+      opacity: 0;
+    }
+
+    .settings-panel.open {
+      max-height: 280px;
+      opacity: 1;
+    }
+
+    .settings-chevron {
+      transition: transform 0.3s ease;
+    }
+
+    .settings-chevron.open {
+      transform: rotate(180deg);
     }
   </style>
 </head>
 <body class="font-sans antialiased">
-  <div class="ambient-orb w-80 h-80 bg-indigo-900/20 -top-24 -left-24"></div>
-  <div class="ambient-orb w-[28rem] h-[28rem] bg-teal-900/15 top-1/3 -right-36"></div>
-  <div class="ambient-orb w-72 h-72 bg-amber-900/10 bottom-0 left-1/3"></div>
+  <div class="ambient-orb w-96 h-96 bg-indigo-800/15 -top-32 -left-32"></div>
+  <div class="ambient-orb w-[32rem] h-[32rem] bg-teal-800/12 top-1/4 -right-40"></div>
+  <div class="ambient-orb w-80 h-80 bg-amber-800/10 bottom-10 left-1/4"></div>
 
-  <main class="relative z-10 max-w-xl mx-auto px-5 py-10 sm:py-14">
-    <header class="text-center mb-10 fade-up">
-      <h1 class="font-display text-4xl sm:text-5xl font-medium text-vibe-text tracking-tight">
+  <main class="relative z-10 max-w-xl mx-auto px-4 sm:px-6 py-8 sm:py-14 pb-12">
+    <header class="text-center mb-8 sm:mb-12 fade-up">
+      <p class="text-xs uppercase tracking-[0.2em] text-vibe-muted/70 mb-3 font-medium">daily check-in</p>
+      <h1 class="font-display text-4xl sm:text-5xl font-medium text-vibe-text tracking-tight leading-tight">
         VibeLog
       </h1>
-      <p class="mt-2 text-vibe-muted text-lg font-light italic font-display">
+      <p class="mt-3 text-vibe-muted text-base sm:text-lg font-light italic font-display leading-relaxed max-w-sm mx-auto">
         A gentle place to notice how you feel
       </p>
     </header>
 
-    <!-- Log Form -->
-    <section aria-label="Log today's vibe" class="glass rounded-3xl p-6 sm:p-8 mb-10 fade-up fade-up-1">
-      <h2 class="font-display text-xl text-vibe-text mb-1">How are you feeling?</h2>
-      <p class="text-sm text-vibe-muted mb-6">Tap a mood, add a note if you'd like, and save.</p>
+    <!-- Streak highlight -->
+    <div id="streak-banner" class="streak-glow rounded-2xl px-5 py-4 mb-6 sm:mb-8 flex items-center justify-between gap-4 fade-up fade-up-1 hidden">
+      <div class="flex items-center gap-3">
+        <span class="text-2xl animate-gentle-pulse" aria-hidden="true">✨</span>
+        <div>
+          <p class="text-sm text-vibe-muted">Your streak</p>
+          <p class="font-display text-xl text-vibe-warm">
+            <span id="streak-banner-count">0</span> day<span id="streak-banner-plural">s</span>
+          </p>
+        </div>
+      </div>
+      <p id="streak-banner-msg" class="text-sm text-vibe-sage italic text-right hidden sm:block"></p>
+    </div>
 
-      <div class="flex justify-between gap-2 sm:gap-3 mb-7" role="group" aria-label="Mood emoji selector">
-        <button type="button" class="emoji-btn flex-1 text-4xl sm:text-5xl py-4 rounded-2xl glass border border-transparent focus:outline-none focus:ring-2 focus:ring-vibe-cool/40" data-mood="1" aria-label="Sad mood">😢</button>
-        <button type="button" class="emoji-btn flex-1 text-4xl sm:text-5xl py-4 rounded-2xl glass border border-transparent focus:outline-none focus:ring-2 focus:ring-vibe-cool/40" data-mood="2" aria-label="Neutral mood">😐</button>
-        <button type="button" class="emoji-btn flex-1 text-4xl sm:text-5xl py-4 rounded-2xl glass border border-transparent focus:outline-none focus:ring-2 focus:ring-vibe-cool/40 selected" data-mood="3" aria-label="Okay mood">🙂</button>
-        <button type="button" class="emoji-btn flex-1 text-4xl sm:text-5xl py-4 rounded-2xl glass border border-transparent focus:outline-none focus:ring-2 focus:ring-vibe-cool/40" data-mood="4" aria-label="Happy mood">😊</button>
-        <button type="button" class="emoji-btn flex-1 text-4xl sm:text-5xl py-4 rounded-2xl glass border border-transparent focus:outline-none focus:ring-2 focus:ring-vibe-cool/40" data-mood="5" aria-label="Amazing mood">🤩</button>
+    <!-- Log Form -->
+    <section aria-label="Log today's vibe" class="glass rounded-3xl p-5 sm:p-8 mb-8 sm:mb-10 fade-up fade-up-1 shadow-lg shadow-black/10">
+      <h2 class="font-display text-xl sm:text-2xl text-vibe-text mb-1.5">How are you feeling?</h2>
+      <p class="text-sm text-vibe-muted mb-6 sm:mb-8 leading-relaxed">Tap a mood, add a note if you'd like, and save.</p>
+
+      <div class="flex justify-between gap-1.5 sm:gap-3 mb-7 sm:mb-8" role="group" aria-label="Mood emoji selector">
+        <button type="button" class="emoji-btn flex-1 text-3xl sm:text-5xl py-3 sm:py-4 rounded-2xl glass-soft border border-transparent focus:outline-none focus:ring-2 focus:ring-vibe-cool/40" data-mood="1" aria-label="Sad mood">😢</button>
+        <button type="button" class="emoji-btn flex-1 text-3xl sm:text-5xl py-3 sm:py-4 rounded-2xl glass-soft border border-transparent focus:outline-none focus:ring-2 focus:ring-vibe-cool/40" data-mood="2" aria-label="Neutral mood">😐</button>
+        <button type="button" class="emoji-btn flex-1 text-3xl sm:text-5xl py-3 sm:py-4 rounded-2xl glass-soft border border-transparent focus:outline-none focus:ring-2 focus:ring-vibe-cool/40 selected" data-mood="3" aria-label="Okay mood">🙂</button>
+        <button type="button" class="emoji-btn flex-1 text-3xl sm:text-5xl py-3 sm:py-4 rounded-2xl glass-soft border border-transparent focus:outline-none focus:ring-2 focus:ring-vibe-cool/40" data-mood="4" aria-label="Happy mood">😊</button>
+        <button type="button" class="emoji-btn flex-1 text-3xl sm:text-5xl py-3 sm:py-4 rounded-2xl glass-soft border border-transparent focus:outline-none focus:ring-2 focus:ring-vibe-cool/40" data-mood="5" aria-label="Amazing mood">🤩</button>
       </div>
 
-      <div class="mb-4">
-        <label for="note-input" class="block text-sm text-vibe-muted mb-2">
+      <div class="mb-5">
+        <label for="note-input" class="block text-sm text-vibe-muted mb-2.5">
           Note <span class="text-vibe-muted/50">(optional)</span>
         </label>
         <textarea
@@ -190,70 +311,111 @@
           rows="2"
           maxlength="280"
           placeholder="A few words about today..."
-          class="input-field w-full rounded-xl px-4 py-3 text-vibe-text placeholder:text-vibe-muted/45 resize-none"
+          class="input-field w-full rounded-xl px-4 py-3.5 text-vibe-text placeholder:text-vibe-muted/40 resize-none text-sm sm:text-base leading-relaxed"
         ></textarea>
       </div>
 
-      <div class="mb-4">
-        <label for="tags-input" class="block text-sm text-vibe-muted mb-2">
+      <div class="mb-5">
+        <label for="tags-input" class="block text-sm text-vibe-muted mb-2.5">
           Tags <span class="text-vibe-muted/50">(optional, comma separated)</span>
         </label>
         <input
           type="text"
           id="tags-input"
           placeholder="calm, grateful, tired"
-          class="input-field w-full rounded-xl px-4 py-3 text-vibe-text placeholder:text-vibe-muted/45"
+          class="input-field w-full rounded-xl px-4 py-3.5 text-vibe-text placeholder:text-vibe-muted/40 text-sm sm:text-base"
         >
       </div>
 
-      <p class="text-sm text-vibe-muted mb-6 flex items-center gap-2">
-        <span aria-hidden="true">📅</span>
+      <p class="text-sm text-vibe-muted mb-6 flex items-center gap-2.5">
+        <span aria-hidden="true" class="text-base">📅</span>
         <span id="datetime-text"></span>
       </p>
 
       <button
         type="button"
         id="save-btn"
-        class="save-btn w-full py-3.5 rounded-xl bg-vibe-warm text-vibe-bg font-medium text-base focus:outline-none focus:ring-2 focus:ring-vibe-warm/50"
+        class="save-btn w-full py-3.5 sm:py-4 rounded-xl bg-vibe-warm text-vibe-bg font-medium text-base focus:outline-none focus:ring-2 focus:ring-vibe-warm/50"
       >
         Save entry
       </button>
     </section>
 
     <!-- History -->
-    <section aria-label="Your journey" class="mb-10 fade-up fade-up-2">
-      <h2 class="font-display text-xl text-vibe-text mb-5">Your journey</h2>
-      <div id="history-list" class="space-y-3"></div>
-      <div id="history-empty" class="glass rounded-2xl p-8 text-center">
-        <p class="text-4xl mb-3" aria-hidden="true">🌱</p>
-        <p class="text-vibe-text font-display text-lg mb-2">Your vibe journey starts here</p>
-        <p class="text-vibe-muted text-sm leading-relaxed">Log how you're feeling — it only takes a moment.</p>
+    <section aria-label="Your journey" class="mb-8 sm:mb-10 fade-up fade-up-2">
+      <h2 class="font-display text-xl sm:text-2xl text-vibe-text mb-5 sm:mb-6">Your journey</h2>
+      <div id="history-list" class="space-y-3 sm:space-y-4"></div>
+      <div id="history-empty" class="glass rounded-2xl p-8 sm:p-10 text-center">
+        <p class="text-4xl sm:text-5xl mb-4 animate-gentle-pulse" aria-hidden="true">🌱</p>
+        <p class="text-vibe-text font-display text-lg sm:text-xl mb-2">Your vibe journey starts here</p>
+        <p class="text-vibe-muted text-sm sm:text-base leading-relaxed max-w-xs mx-auto">Log how you're feeling — it only takes a moment.</p>
       </div>
     </section>
 
     <!-- Stats -->
-    <section aria-label="Your stats" class="grid grid-cols-3 gap-3 fade-up fade-up-3">
-      <div class="glass rounded-2xl p-4 text-center">
-        <p class="text-xs uppercase tracking-wider text-vibe-muted mb-1">Avg mood</p>
-        <p id="stat-avg" class="text-2xl font-display text-vibe-cool">—</p>
-        <p id="stat-avg-emoji" class="text-lg mt-0.5" aria-hidden="true"></p>
+    <section aria-label="Your stats" class="grid grid-cols-3 gap-2.5 sm:gap-4 mb-8 sm:mb-10 fade-up fade-up-3">
+      <div class="glass rounded-2xl p-3.5 sm:p-5 text-center">
+        <p class="text-[10px] sm:text-xs uppercase tracking-wider text-vibe-muted mb-1.5">Avg mood</p>
+        <p id="stat-avg" class="text-xl sm:text-2xl font-display text-vibe-cool">—</p>
+        <p id="stat-avg-emoji" class="text-base sm:text-lg mt-0.5" aria-hidden="true"></p>
       </div>
-      <div class="glass rounded-2xl p-4 text-center">
-        <p class="text-xs uppercase tracking-wider text-vibe-muted mb-1">Streak</p>
-        <p class="text-2xl font-display text-vibe-warm">
+      <div class="glass streak-glow rounded-2xl p-3.5 sm:p-5 text-center">
+        <p class="text-[10px] sm:text-xs uppercase tracking-wider text-vibe-muted mb-1.5">Streak</p>
+        <p class="text-xl sm:text-2xl font-display text-vibe-warm">
           <span id="stat-streak">0</span>
-          <span class="text-base text-vibe-muted">days</span>
+          <span class="text-sm sm:text-base text-vibe-muted font-sans font-normal">days</span>
         </p>
-        <p id="stat-streak-note" class="text-xs text-vibe-muted mt-0.5 hidden">keep showing up</p>
+        <p id="stat-streak-note" class="text-[10px] sm:text-xs text-vibe-sage mt-1 hidden italic">keep showing up</p>
       </div>
-      <div class="glass rounded-2xl p-4 text-center">
-        <p class="text-xs uppercase tracking-wider text-vibe-muted mb-1">Entries</p>
-        <p id="stat-total" class="text-2xl font-display text-vibe-text">0</p>
+      <div class="glass rounded-2xl p-3.5 sm:p-5 text-center">
+        <p class="text-[10px] sm:text-xs uppercase tracking-wider text-vibe-muted mb-1.5">Entries</p>
+        <p id="stat-total" class="text-xl sm:text-2xl font-display text-vibe-text">0</p>
+      </div>
+    </section>
+
+    <!-- Settings -->
+    <section aria-label="Settings" class="fade-up fade-up-4">
+      <button
+        type="button"
+        id="settings-toggle"
+        class="w-full glass rounded-2xl px-5 py-4 flex items-center justify-between text-left focus:outline-none focus:ring-2 focus:ring-vibe-cool/30 action-btn"
+        aria-expanded="false"
+        aria-controls="settings-panel"
+      >
+        <span class="flex items-center gap-3">
+          <span aria-hidden="true" class="text-lg">⚙️</span>
+          <span class="font-display text-base text-vibe-text">Settings</span>
+        </span>
+        <svg id="settings-chevron" class="settings-chevron w-5 h-5 text-vibe-muted" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
+      </button>
+
+      <div id="settings-panel" class="settings-panel mt-2" role="region" aria-label="Settings options">
+        <div class="glass rounded-2xl p-5 sm:p-6 space-y-4">
+          <div>
+            <p class="text-sm text-vibe-muted mb-3 leading-relaxed">Your data stays on this device. Export a backup anytime, or start fresh when you need to.</p>
+            <div class="flex flex-col sm:flex-row gap-3">
+              <button
+                type="button"
+                id="export-btn"
+                class="action-btn flex-1 py-3 px-4 rounded-xl glass-soft border border-vibe-cool/25 text-vibe-cool text-sm font-medium focus:outline-none focus:ring-2 focus:ring-vibe-cool/30 hover:bg-vibe-cool/10 hover:border-vibe-cool/40"
+              >
+                Export all data as JSON
+              </button>
+              <button
+                type="button"
+                id="clear-btn"
+                class="action-btn flex-1 py-3 px-4 rounded-xl glass-soft border border-red-400/20 text-red-300/80 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-red-400/25 hover:bg-red-400/10 hover:border-red-400/35"
+              >
+                Clear all data
+              </button>
+            </div>
+          </div>
+        </div>
       </div>
     </section>
   </main>
 
-  <div id="toast" class="fixed bottom-6 left-1/2 -translate-x-1/2 glass rounded-full px-5 py-2.5 text-sm text-vibe-cool hidden toast" role="status"></div>
+  <div id="toast" class="fixed bottom-6 left-1/2 -translate-x-1/2 glass rounded-full px-5 py-2.5 text-sm text-vibe-cool hidden toast z-50 max-w-[90vw] text-center" role="status"></div>
 
   <script>
     const STORAGE_KEY = 'vibelog_entries';
@@ -264,6 +426,14 @@
       { value: 3, emoji: '🙂', label: 'Okay' },
       { value: 4, emoji: '😊', label: 'Happy' },
       { value: 5, emoji: '🤩', label: 'Amazing' },
+    ];
+
+    const STREAK_MESSAGES = [
+      { min: 1, msg: 'Every day counts' },
+      { min: 3, msg: 'Building a gentle habit' },
+      { min: 7, msg: 'A whole week of showing up' },
+      { min: 14, msg: 'Two weeks of self-care' },
+      { min: 30, msg: 'A month of mindfulness' },
     ];
 
     let currentMood = 3;
@@ -322,15 +492,11 @@
       return div.innerHTML;
     }
 
-    function computeStats(entries) {
-      const total = entries.length;
-      if (total === 0) return { avg: null, streak: 0, total: 0 };
-
-      const avg = entries.reduce((sum, e) => sum + e.mood, 0) / total;
-
+    function computeStreak(entries) {
       const dates = new Set(entries.map(e => localDateKey(e.timestamp)));
+      if (dates.size === 0) return 0;
+
       const today = new Date();
-      let streak = 0;
       let check = new Date(today.getFullYear(), today.getMonth(), today.getDate());
 
       const todayKey = localDateKey(check.toISOString());
@@ -338,10 +504,29 @@
         check.setDate(check.getDate() - 1);
       }
 
+      let streak = 0;
       while (dates.has(localDateKey(check.toISOString()))) {
         streak++;
         check.setDate(check.getDate() - 1);
       }
+
+      return streak;
+    }
+
+    function streakMessage(streak) {
+      let msg = STREAK_MESSAGES[0].msg;
+      for (const s of STREAK_MESSAGES) {
+        if (streak >= s.min) msg = s.msg;
+      }
+      return msg;
+    }
+
+    function computeStats(entries) {
+      const total = entries.length;
+      if (total === 0) return { avg: null, streak: 0, total: 0 };
+
+      const avg = entries.reduce((sum, e) => sum + e.mood, 0) / total;
+      const streak = computeStreak(entries);
 
       return { avg, streak, total };
     }
@@ -361,7 +546,13 @@
     function setMood(value) {
       currentMood = value;
       document.querySelectorAll('.emoji-btn').forEach(btn => {
-        btn.classList.toggle('selected', Number(btn.dataset.mood) === value);
+        const isSelected = Number(btn.dataset.mood) === value;
+        btn.classList.toggle('selected', isSelected);
+        if (isSelected) {
+          btn.style.animation = 'none';
+          void btn.offsetWidth;
+          btn.style.animation = 'scaleIn 0.35s cubic-bezier(0.34, 1.56, 0.64, 1) both';
+        }
       });
     }
 
@@ -371,7 +562,24 @@
       toast.classList.remove('hidden', 'toast');
       void toast.offsetWidth;
       toast.classList.add('toast');
-      setTimeout(() => toast.classList.add('hidden'), 1800);
+      setTimeout(() => toast.classList.add('hidden'), 2000);
+    }
+
+    function updateStreakBanner(streak) {
+      const banner = document.getElementById('streak-banner');
+      const countEl = document.getElementById('streak-banner-count');
+      const pluralEl = document.getElementById('streak-banner-plural');
+      const msgEl = document.getElementById('streak-banner-msg');
+
+      if (streak >= 1) {
+        banner.classList.remove('hidden');
+        countEl.textContent = streak;
+        pluralEl.textContent = streak === 1 ? '' : 's';
+        msgEl.textContent = streakMessage(streak);
+        msgEl.classList.toggle('hidden', streak < 2);
+      } else {
+        banner.classList.add('hidden');
+      }
     }
 
     function renderStats() {
@@ -384,6 +592,8 @@
 
       const note = document.getElementById('stat-streak-note');
       note.classList.toggle('hidden', streak < 2);
+
+      updateStreakBanner(streak);
     }
 
     function renderHistory() {
@@ -400,19 +610,19 @@
       empty.classList.add('hidden');
       list.innerHTML = entries.map((entry, i) => `
         <article
-          class="entry-card card-in glass rounded-2xl p-4 sm:p-5 relative group"
-          style="animation-delay: ${Math.min(i * 0.05, 0.3)}s"
+          class="entry-card entry-slide-in glass rounded-2xl p-4 sm:p-5 relative group"
+          style="animation-delay: ${Math.min(i * 0.06, 0.36)}s"
           data-id="${entry.id}"
         >
           <div class="flex items-start justify-between gap-3">
-            <div class="flex items-start gap-3 min-w-0">
-              <span class="text-3xl flex-shrink-0" aria-hidden="true">${moodToEmoji(entry.mood)}</span>
-              <div class="min-w-0">
+            <div class="flex items-start gap-3 min-w-0 flex-1">
+              <span class="text-2xl sm:text-3xl flex-shrink-0" aria-hidden="true">${moodToEmoji(entry.mood)}</span>
+              <div class="min-w-0 flex-1">
                 <div class="flex items-baseline gap-2 flex-wrap">
-                  <span class="font-display text-base text-vibe-warm">${MOODS.find(m => m.value === entry.mood)?.label ?? 'Mood'}</span>
-                  <span class="text-sm text-vibe-muted">${formatDate(entry.timestamp)}</span>
+                  <span class="font-display text-sm sm:text-base text-vibe-warm">${MOODS.find(m => m.value === entry.mood)?.label ?? 'Mood'}</span>
+                  <span class="text-xs sm:text-sm text-vibe-muted">${formatDate(entry.timestamp)}</span>
                 </div>
-                ${entry.note ? `<p class="text-vibe-text/90 text-sm mt-2 leading-relaxed">${escapeHtml(entry.note)}</p>` : ''}
+                ${entry.note ? `<p class="text-vibe-text/90 text-sm mt-2 leading-relaxed break-words">${escapeHtml(entry.note)}</p>` : ''}
                 ${entry.tags?.length ? `
                   <div class="flex flex-wrap gap-1.5 mt-2">
                     ${entry.tags.map(t => `<span class="tag-pill text-xs px-2.5 py-0.5 rounded-full">#${escapeHtml(t)}</span>`).join('')}
@@ -422,7 +632,7 @@
             </div>
             <button
               type="button"
-              class="delete-btn flex-shrink-0 text-vibe-muted hover:text-red-400/80 p-1.5 rounded focus:outline-none focus:ring-2 focus:ring-red-400/30"
+              class="delete-btn flex-shrink-0 text-vibe-muted hover:text-red-400/80 p-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-400/30"
               aria-label="Delete this entry"
               data-delete="${entry.id}"
             >
@@ -437,10 +647,10 @@
           const id = btn.dataset.delete;
           const card = list.querySelector(`[data-id="${id}"]`);
           if (card) {
-            card.style.transition = 'opacity 0.25s ease, transform 0.25s ease';
+            card.style.transition = 'opacity 0.3s ease, transform 0.3s ease';
             card.style.opacity = '0';
-            card.style.transform = 'translateX(8px)';
-            setTimeout(() => deleteEntry(id), 250);
+            card.style.transform = 'translateX(12px)';
+            setTimeout(() => deleteEntry(id), 300);
           } else {
             deleteEntry(id);
           }
@@ -490,6 +700,58 @@
       }, 1500);
     }
 
+    function exportData() {
+      const entries = loadEntries();
+      const exportPayload = {
+        app: 'VibeLog',
+        exportedAt: new Date().toISOString(),
+        version: 1,
+        entries,
+        stats: computeStats(entries),
+      };
+
+      const blob = new Blob([JSON.stringify(exportPayload, null, 2)], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      const date = new Date().toISOString().slice(0, 10);
+      a.href = url;
+      a.download = `vibelog-export-${date}.json`;
+      a.click();
+      URL.revokeObjectURL(url);
+
+      showToast(entries.length
+        ? `Exported ${entries.length} ${entries.length === 1 ? 'entry' : 'entries'}`
+        : 'Exported empty backup');
+    }
+
+    function clearAllData() {
+      const count = loadEntries().length;
+      const message = count
+        ? `Clear all ${count} ${count === 1 ? 'entry' : 'entries'}? This cannot be undone.`
+        : 'No entries to clear.';
+
+      if (count === 0) {
+        showToast(message);
+        return;
+      }
+
+      if (!confirm(message)) return;
+
+      localStorage.removeItem(STORAGE_KEY);
+      renderStats();
+      renderHistory();
+      showToast('All data cleared — a fresh start awaits');
+    }
+
+    function toggleSettings() {
+      const panel = document.getElementById('settings-panel');
+      const toggle = document.getElementById('settings-toggle');
+      const chevron = document.getElementById('settings-chevron');
+      const isOpen = panel.classList.toggle('open');
+      chevron.classList.toggle('open', isOpen);
+      toggle.setAttribute('aria-expanded', isOpen);
+    }
+
     function init() {
       updateDateTime();
       setInterval(updateDateTime, 30000);
@@ -499,6 +761,9 @@
       });
 
       document.getElementById('save-btn').addEventListener('click', handleSave);
+      document.getElementById('export-btn').addEventListener('click', exportData);
+      document.getElementById('clear-btn').addEventListener('click', clearAllData);
+      document.getElementById('settings-toggle').addEventListener('click', toggleSettings);
 
       renderStats();
       renderHistory();
